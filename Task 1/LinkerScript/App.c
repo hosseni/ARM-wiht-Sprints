@@ -1,4 +1,4 @@
-const int Sprints_Var[] __attribute__ ((section(".Sprints_Section"))) = {5,2,3};
+const int Sprints_Arr[] __attribute__ ((section(".Sprints_Section"))) = {5,2,3};
 
 int main ()
 {

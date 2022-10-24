@@ -25,20 +25,20 @@ Linker script and memory map
  *(.Sprints_Section)
  .Sprints_Section
                 0x00001000        0xc App.o
-                0x00001000                Sprints_Var
+                0x00001000                Sprints_Arr
  *(.Sprints_Section*)
                 0x0000100c                . = ALIGN (0x4)
 
 .text           0x0000100c       0x9c
                 0x0000100c                . = ALIGN (0x4)
  *(.text)
- .text          0x0000100c        0x6 App.o
-                0x0000100c                main
- *fill*         0x00001012        0x2 
- .text          0x00001014       0x94 StartupCode_STM32F103C8.o
-                0x00001014                Reset_Handler
+ .text          0x0000100c       0x94 StartupCode_STM32F103C8.o
+                0x0000100c                Reset_Handler
+ .text          0x000010a0        0x6 App.o
+                0x000010a0                main
  *(.text*)
                 0x000010a8                . = ALIGN (0x4)
+ *fill*         0x000010a6        0x2 
                 0x000010a8                _etext = .
 
 .glue_7         0x000010a8        0x0
@@ -72,8 +72,8 @@ Linker script and memory map
                 0x20000000                . = ALIGN (0x4)
                 0x20000000                _sdata = .
  *(.data)
- .data          0x20000000        0x0 App.o
  .data          0x20000000        0x0 StartupCode_STM32F103C8.o
+ .data          0x20000000        0x0 App.o
  *(.data*)
                 0x20000000                . = ALIGN (0x4)
                 0x20000000                _edata = .
@@ -84,8 +84,8 @@ Linker script and memory map
 .bss            0x20000000        0x0 load address 0x000010ac
                 0x20000000                _sbss = .
  *(.bss)
- .bss           0x20000000        0x0 App.o
  .bss           0x20000000        0x0 StartupCode_STM32F103C8.o
+ .bss           0x20000000        0x0 App.o
  *(.bss*)
                 0x20000000                . = ALIGN (0x4)
                 0x20000000                _ebss = .
@@ -98,19 +98,19 @@ Linker script and memory map
                 0x20000600                . = (. + _Min_Stack_Size)
  *fill*         0x20000200      0x400 
                 0x20000600                . = ALIGN (0x8)
-LOAD App.o
 LOAD StartupCode_STM32F103C8.o
+LOAD App.o
 OUTPUT(StartupCode_STM32F103C8.elf elf32-littlearm)
 LOAD linker stubs
 
 .comment        0x00000000       0x4d
- .comment       0x00000000       0x4d App.o
+ .comment       0x00000000       0x4d StartupCode_STM32F103C8.o
                                  0x4e (size before relaxing)
- .comment       0x0000004d       0x4e StartupCode_STM32F103C8.o
+ .comment       0x0000004d       0x4e App.o
 
 .ARM.attributes
                 0x00000000       0x2d
  .ARM.attributes
-                0x00000000       0x2d App.o
+                0x00000000       0x2d StartupCode_STM32F103C8.o
  .ARM.attributes
-                0x0000002d       0x2d StartupCode_STM32F103C8.o
+                0x0000002d       0x2d App.o
