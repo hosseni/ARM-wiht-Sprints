@@ -60,7 +60,7 @@ volatile uint32 * ALIAS_SRAM_ADD = NULL;
 #define TOGGLE_BIT (REG_ADD, BIT_NUM) {\
                                        BITBAND_PERI (REG_ADD, BIT_NUM)\
                                        if (ALIAS_PERI_ADD != NULL)\
-                                       (ALIAS_PERI_ADD*) ^= 0;\
+                                       (ALIAS_PERI_ADD*) ^= 1;\
                                        }\
 
  
