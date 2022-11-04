@@ -29,6 +29,7 @@
     "**/.vscode/**"
   ],
   "files.associations": {
-    "cpu_driver.h": "c"
+    "cpu_driver.h": "c",
+    "platform_types.h": "c"
   }
 }
