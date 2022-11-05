@@ -1,12 +1,10 @@
-
-
-
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -----------------------------------------------------------------------------------------------------------------*/
-/**       \file  Cpu_Driver.c
+/**        \file  Cpu_Driver.c
  *        \brief  
- *        \details  
+ *
+ *      \details  
  *
  *
  *********************************************************************************************************************/
@@ -14,13 +12,16 @@
 /**********************************************************************************************************************
  *  INCLUDES
  *********************************************************************************************************************/
+
 #include "Std_Types.h"
+#include "PlatForm_Types.h"
 #include "Cpu_Driver.h"
 
 /**********************************************************************************************************************
 *  LOCAL MACROS CONSTANT\FUNCTION
 *********************************************************************************************************************/
-
+#define CPU_SWITCH_TO_PRIVMODE_CONTROL()            __asm("MOV R0, 0x0\n");\
+                                                    __asm("MSR CONTROL, R0\n")
 /**********************************************************************************************************************
  *  LOCAL DATA 
  *********************************************************************************************************************/
@@ -41,79 +42,40 @@
  *  GLOBAL FUNCTIONS
  *********************************************************************************************************************/
 
-
-/******************************************************************************
-* \Syntax          : void CpuDriver_StopCriticalSection   (void)
-        
-* \Description     : Describe this service                                    
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : none                         
-* \Parameters (out): None                                                      
-* \Return value:   : none                                   
-*******************************************************************************/
-
-void CpuDriver_StopCriticalSection   (void)
+void Cpu_StartCriticalSection(void)
 {
-    CpuDriver_EnableGlobalInterrupt();
+		   CPU_DISABLE_ALL_INTERRUPTS();
 }
 
-/******************************************************************************
-* \Syntax          : void CpuDriver_StartCriticalSection  (void)        
-* \Description     : Describe this service                                    
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : none                         
-* \Parameters (out): None                                                      
-* \Return value:   : none                                   
-*******************************************************************************/
+void Cpu_StopCriticalSection(void)
+{
+		  CPU_ENABLE_ALL_INTERRUPTS();
+}
 
-void CpuDriver_StartCriticalSection  (void)
+void CPU_SwitchToPrivaleged()
 {
-    CpuDriver_DisableGlobalInterrupt();
+	__asm("SVC #1");
+}
+void CPU_SwitchToUnprivaleged()
+{
+	 __asm("MOV R0, 0x1\n");
+   __asm("MSR CONTROL, R0\n");
 }
 /******************************************************************************
-* \Syntax          : void CpuDriver_DisableGlobalInterrupt(void)        
-* \Description     : Disable all interrupts except non maskable and HardFault                                    
-*                                                                             
+* \Syntax          : void SVC_Handler(void)        
+* \Description     :                                                                                              
 * \Sync\Async      : Synchronous                                               
 * \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : none                         
+* \Parameters (in) : None                     
 * \Parameters (out): None                                                      
-* \Return value:   : none                                   
+* \Return value:   : None
 *******************************************************************************/
-void CpuDriver_DisableGlobalInterrupt(void)
+void SVC_Handler(void)
 {
-    __asm("CPSID i"); /*set PRIMASK
-                        Disable all interrupts except non maskable and HardFault*/
-    /*
-    __asm("MOV R0, 0x0\n");
-    __asm("MSR PRIMASK, R0\n");
-    */
-}
-/******************************************************************************
-* \Syntax          : void CpuDriver_EnableGlobalInterrupt (void)        
-* \Description     : Enable all interrupts                                    
-*                                                                             
-* \Sync\Async      : Synchronous                                               
-* \Reentrancy      : Non Reentrant                                             
-* \Parameters (in) : none                         
-* \Parameters (out): None                                                      
-* \Return value:   : none                                   
-*******************************************************************************/
-void CpuDriver_EnableGlobalInterrupt (void)
-{
-    __asm("CPSIE i"); /*clear PRIMASK
-                        Enable all interrupts*/ 
-    
-    /*
-    __asm("MOV R0, 0x0\n");
-    __asm("MSR PRIMASK, R0\n");
-    */
+	/*Switch to privledge Mode by writing to CONTROL Register */
+	CPU_SWITCH_TO_PRIVMODE_CONTROL();
 }
 
 /**********************************************************************************************************************
- *  END OF FILE: FileName.c
+ *  END OF FILE: Cpu_Driver.c
  *********************************************************************************************************************/
