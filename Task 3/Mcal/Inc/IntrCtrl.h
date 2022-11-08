@@ -1,26 +1,35 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -------------------------------------------------------------------------------------------------------------------
- *         File:  Nvic.h
- *       Module:  Nvic
+ *         File:  IntrCtrl.h
+ *         Module:  Nvic
  *
- *  Description:  header file for Nvic Module    
+ *  			 Description:  header file for Nvic Module    
  *  
  *********************************************************************************************************************/
-#ifndef NVIC_H
-#define NVIC_H
+#ifndef INTRCTRL_H_
+#define INTRCTRL_H_
 
 /**********************************************************************************************************************
  * INCLUDES
  *********************************************************************************************************************/
 #include "Std_Types.h"
 #include "platform_types.h"
-#include "Nvic_Cfg.h"
+#include "IntrCtrl_Cfg.h"
 
 /**********************************************************************************************************************
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
 
+#define APINT_KEY 				   						0xFA05
+#define APINT_KEY_START_BIT  						16
+#define NVIC_GROUPING_SYSTEM_START_BIT  8
+
+/*Grouping Sys*/
+#define NVIC_GROUPING_SYSTEM_XXX    4
+#define NVIC_GROUPING_SYSTEM_XXY    5
+#define NVIC_GROUPING_SYSTEM_XYY    6
+#define NVIC_GROUPING_SYSTEM_YYY    7
 
 /**********************************************************************************************************************
  *  GLOBAL FUNCTION MACROS
@@ -33,7 +42,7 @@
 
 
 
-typedef enum            /*Represent All Interrupt Numbers */
+typedef enum            /*Vector Table*/
 {
 	NVIC_GPIO_PORT_A = 0 			,
 	NVIC_GPIO_PORT_B     			,
@@ -159,6 +168,7 @@ typedef enum            /*Represent All Interrupt Numbers */
 	
 }Nvic_IntType;
 
+
 typedef struct
 {
 	Nvic_IntType interruptNumber;
@@ -189,8 +199,8 @@ extern const Nvic_CfgType Nvic_Cfg[];
 *******************************************************************************/
 void Nvic_Init(void);
  
-#endif  /* NVIC_H */
+#endif  /* INTRCTRL_H_ */
 
 /**********************************************************************************************************************
- *  END OF FILE: Std_Types.h
+ *  END OF FILE: IntrCtrl.h
  *********************************************************************************************************************/

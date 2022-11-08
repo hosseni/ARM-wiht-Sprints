@@ -1,7 +1,7 @@
 /**********************************************************************************************************************
  *  FILE DESCRIPTION
  *  -----------------------------------------------------------------------------------------------------------------*/
-/**        \file  Nvic.c
+/**        \file  IntrCtr.c
  *        \brief  Nested Vector Interrupt Controller Driver
  *
  *       \details  The Driver Configure All MCU interrupts Priority into gorups and subgroups
@@ -14,22 +14,13 @@
  *********************************************************************************************************************/
 #include "Std_Types.h"
 #include "platform_types.h"
-#include "Nvic.h"
+#include "IntrCtrl_Cfg.h"
+#include "IntrCtrl.h"
 #include "Mcu_Hw.h"
 
 /**********************************************************************************************************************
 *  LOCAL MACROS CONSTANT\FUNCTION
 *********************************************************************************************************************/
-#define NVIC_GROUPING_SYSTEM_XXX    4
-#define NVIC_GROUPING_SYSTEM_XXY    5
-#define NVIC_GROUPING_SYSTEM_XYY    6
-#define NVIC_GROUPING_SYSTEM_YYY    7
-
-#define APINT_VECTKEY                0x05FA
-#define PRIGROUP_FIELD_OFFSET        0x8u
-#define APINT_VECTKEY_FIELD_OFFSET   16u
-#define NVIC_REG_NUM_OF_PRI_FIELDS   4u
-	
 
 /**********************************************************************************************************************
  *  LOCAL DATA 
@@ -65,52 +56,61 @@
 *******************************************************************************/
 void Nvic_Init(void)
 {
+	
 	Nvic_IntType intNum;
-	uint8 locGroup,locSubGroup,i,locGroupingField;
-	uint32 enRegOffset,enBitOffset,priRegOffset,priBitOffset;
+	uint8 intGroup, intSubGroup, intStatus, groupAndSubGroup, i;
+	uint32 regEnableOffset, bitEnableOffset, regPriorityOffset,bitPriorityOffset;
+	volatile uint32  *regEnableAdd, *regPriorityAdd ;
+	
 	/*TODO COnfigure Grouping\SubGrouping System in APINT register in SCB*/
+		*APINT = (APINT_KEY << APINT_KEY_START_BIT)| (NVIC_GROUPING_SYSTEM << NVIC_GROUPING_SYSTEM_START_BIT);
 	
-	APINT = (APINT_VECTKEY<<APINT_VECTKEY_FIELD_OFFSET) |
-	        (NVIC_GROUPING_SYSTEM<<PRIGROUP_FIELD_OFFSET);
-	
-	for(i=0;i< NVIC_ACTIVATED_INT_SIZE;i++)
-	{
-		intNum = Nvic_Cfg[i].interruptNumber;
-		locGroup = Nvic_Cfg[i].groupPriority;
-		locSubGroup = Nvic_Cfg[i].subgroupPriority;
+		for(i=0;i< NVIC_ACTIVATED_INT_SIZE;i++)
+		{
+		intNum       =  Nvic_Cfg[i].interruptNumber;
+		intGroup     =  Nvic_Cfg[i].groupPriority;
+		intSubGroup  =  Nvic_Cfg[i].subgroupPriority;	
+			
+	/*TODO : Enable\Disable based on user configurations in ENx Nvic Registers */
 		
-		/*TODO : Assign Group\Subgroup priority in PRIx Nvic Registers*/
+		/*Calc register offset and bit offset to get Enable regester address*/
+		regEnableOffset = (intNum/WORD_LENGTH_BITS)*WORD_LENGTH_BYTES;
+		bitEnableOffset = (intNum % WORD_LENGTH_BITS);
 		
-	    priRegOffset = (intNum / NVIC_REG_NUM_OF_PRI_FIELDS)*WORD_LENGTH_BYTES;
-		priBitOffset = 5+((intNum % NVIC_REG_NUM_OF_PRI_FIELDS) *8 );
-	    GET_HWREG(NVIC_PRI_BASE_ADDRESS,priRegOffset) |= (locGroupingField << priBitOffset);
-	
-    
-    	/*TODO : Enable\Disable based on user configurations in ENx Nvic Registers */
-	
-        /*NVIC_ENx Register*/
-        enRegOffset = (intNum/WORD_LENGTH_BITS)*WORD_LENGTH_BYTES;
-		enBitOffset = intNum%WORD_LENGTH_BITS;
-		GET_HWREG(NVIC_ENABLE_BASE_ADDRESS,enRegOffset) |= (1<<enBitOffset);
-		
+
+		regEnableAdd = (uint32 *)(NVIC_ENABLE_BASE_ADDRESS +  regEnableOffset );
+		/*Enable Interrupt*/
+	 *regEnableAdd |= ( 1 << bitEnableOffset );
+
 		/* Create Grouping Field */
 #if (NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XXX)
-	    locGroupingField = locGroup;
+	      groupAndSubGroup = intGroup;
 #elif (NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XXY) 
-        locGroupingField = ((locGroup<<1)&0x6) | (locSubGroup&0x1);
+        groupAndSubGroup = ((intGroup<<1)&0x6) | (intSubGroup&0x1);
 #elif (NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_XYY) 
-        locGroupingField = ((locGroup<<2)&0x4) | (locSubGroup&0x3);
+        groupAndSubGroup = ((intGroup<<2)&0x4) | (intSubGroup&0x3);
 #elif (NVIC_GROUPING_SYSTEM == NVIC_GROUPING_SYSTEM_YYY) 
-        locGroupingField = locSubGroup;
+        groupAndSubGroup = intSubGroup;
 #else
-     #error INVALID GROUPING SELECTION
+     #error Invalid grouping system 
 #endif 	/*NVIC_GROUPING_SYSTEM*/
-		
-	
-		
-	}	
+
+/*TODO : Assign Group\Subgroup priority in PRIx Nvic Registers*/
+
+		/*Calc register offset and bit offset to get Priority regester address*/
+		regPriorityOffset = (intNum / 4) ;
+		bitPriorityOffset = ((intNum % 4) *8) +5;
+
+	/*set priority grouping value*/
+		regPriorityAdd  = (uint32 *) (NVIC_PRIORITY_BASE_ADDRESS + regPriorityOffset);
+	 *regPriorityAdd |= (groupAndSubGroup << bitPriorityOffset);
+
+
+	}
 }
 
+void 
+
 /**********************************************************************************************************************
- *  END OF FILE: Nvic.c
+ *  END OF FILE: IntrCtrl.c
  *********************************************************************************************************************/
