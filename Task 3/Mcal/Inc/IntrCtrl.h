@@ -21,7 +21,8 @@
  *  GLOBAL CONSTANT MACROS
  *********************************************************************************************************************/
 
-#define APINT_KEY 				   						0xFA05
+#define APINT_KEY 				  	               0x05FA
+
 #define APINT_KEY_START_BIT  						16
 #define NVIC_GROUPING_SYSTEM_START_BIT  8
 
